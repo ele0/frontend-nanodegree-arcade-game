@@ -9,7 +9,7 @@ var Enemy = function() {
 
     // Setting the Enemy initial location
     this.x = getRandomIntInclusive(1,20) * -101;
-    this.y = (getRandomIntInclusive(1,3) * 83) - 20;
+    this.y = (getRandomIntInclusive(1,3) * 83) - 25;
     // Setting the Enemy speed.
     // TODO: tweak actual edge values after testing.
     this.speed = getRandomIntInclusive(15,500);
@@ -33,7 +33,7 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Now write your own player class
+// Player that user controls
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
@@ -43,8 +43,44 @@ var Player = function() {
 
     // Setting the Players initial location
     this.x = 2 * 101;
-    this.y = 5 * 171;
+    this.y = (5 * 83) - 25;
 
+};
+
+// Update the player's position, required method for game
+// Parameter: dt, a time delta between ticks
+Player.prototype.update = function(dt) {
+    // You should multiply any movement by the dt parameter
+    // which will ensure the game runs at the same speed for
+    // all computers.
+
+    // TODO: Handles collision with the Enemy
+};
+
+// Draw the player on the screen, required method for game
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+// Handle user inputs for controlling the player
+Player.prototype.handleInput = function (direction){
+    switch (direction){
+        case 'left':
+            this.x -= 101;
+            break;
+        case 'up':
+            this.y -= 83;
+            break;
+        case 'right':
+            this.x += 101;
+            break;
+        case 'down':
+            this.y += 83;
+            break;
+        default:
+            this.reset();
+
+    }
 };
 
 
@@ -56,7 +92,9 @@ var allEnemies = [];
 
 for (i=0;i<numEnemies;i++){
     allEnemies[i] = new Enemy();
-};
+}
+
+var player = new Player();
 
 
 // This listens for key presses and sends the keys to your
