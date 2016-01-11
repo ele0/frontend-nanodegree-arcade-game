@@ -1,15 +1,13 @@
+CHARACTER_Y_OFFSET = 25; // to help with positioning of players and enemies within the corresponding square when rendering
+
 // Enemies our player must avoid
 var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
 
     // Setting the Enemy initial location
-    this.x = getRandomIntInclusive(1,20) * -101;
-    this.y = (getRandomIntInclusive(1,3) * 83) - 25;
+    this.x = getRandomIntInclusive(1,100) * -101;
+    this.y = (getRandomIntInclusive(1,3) * 83) - CHARACTER_Y_OFFSET;
+
     // Setting the Enemy speed.
     // TODO: tweak actual edge values after testing.
     this.speed = getRandomIntInclusive(15,500);
@@ -18,46 +16,40 @@ var Enemy = function() {
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
 
-    // TODO: Updates the Enemy location (you need to implement)
+    //Updates the Enemy location
     this.x += this.speed * dt;
 
     // TODO: Handles collision with the Player
 };
 
-// Draw the enemy on the screen, required method for game
+// Draw the enemy on the screen
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Player that user controls
-// This class requires an update(), render() and
-// a handleInput() method.
-var Player = function() {
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
-    this.sprite = 'images/char-boy.png';
 
-    // Setting the Players initial location
-    this.x = 2 * 101;
-    this.y = (5 * 83) - 25;
+// Player that user controls
+var Player = function() {
+    this.sprite = 'images/char-boy.png';
+    // TODO: Add ability for user to select type of sprite
+
+    this.initialX = 2 * 101;
+    this.initialY = (5 * 83) - CHARACTER_Y_OFFSET;
+
+    this.x = this.initialX;
+    this.y = this.initialY;
 
 };
 
-// Update the player's position, required method for game
+
 // Parameter: dt, a time delta between ticks
 Player.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
 
     // TODO: Handles collision with the Enemy
 };
 
-// Draw the player on the screen, required method for game
+// Draw the player on the screen
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
@@ -66,28 +58,40 @@ Player.prototype.render = function() {
 Player.prototype.handleInput = function (direction){
     switch (direction){
         case 'left':
-            this.x -= 101;
+            if (this.x>= 101)    // allow left-move only if player is on 2nd column or greater
+                this.x -= 101;
             break;
         case 'up':
-            this.y -= 83;
+            if (this.y >= 83 - CHARACTER_Y_OFFSET) // allow up-move only if player is on 2nd row or greater
+                this.y -= 83;
             break;
         case 'right':
-            this.x += 101;
+            if (this.x < 404)     // allow right-move only if player is on less than 5th column
+                this.x += 101;
             break;
         case 'down':
-            this.y += 83;
+            if (this.y < this.initialY) // allow down-move only if player is on less than 6th row (currently 6th row == initialY)
+                this.y += 83;
             break;
         default:
             this.reset();
 
     }
+
+    if (this.y <= 0)     // If player has hit water reset to initial location
+        this.reset();
+};
+
+//Resets player to initial location
+Player.prototype.reset = function (){
+    this.x = this.initialX;
+    this.y = this.initialY;
 };
 
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
-var numEnemies = 10;
+// Now instantiate game Objects.
+
+var numEnemies = 50;
 var allEnemies = [];
 
 for (i=0;i<numEnemies;i++){
