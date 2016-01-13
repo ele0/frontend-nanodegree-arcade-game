@@ -77,7 +77,7 @@ Player.prototype.render = function() {
         for (var i = 0; i < this.sprites.length; i++) {
             ctx.drawImage(Resources.get(this.sprites[i]), i*101 ,this.y);
             ctx.fillText(i+1, i*101 + 50, this.y + CHARACTER_Y_OFFSET);
-        };
+        }
     }else{
         ctx.drawImage(Resources.get(this.sprites[this.currentSprite]), this.x, this.y);
     }
@@ -88,7 +88,7 @@ Player.prototype.render = function() {
  * game play area
  */
 Player.prototype.handleInput = function (key){
-    if (!paused){
+    if (!paused && key != undefined){
         switch (key){
             case 'left':
                 if (this.x>= 101)    // allow left-move only if player is on 2nd column or greater
@@ -107,7 +107,7 @@ Player.prototype.handleInput = function (key){
                     this.y += 83;
                 break;
             default:
-                if (undefined != key && selectingPlayer) {
+                if (selectingPlayer) {
                     this.currentSprite = key-1; // if selecting player avatar, set the sprite
                     selectingPlayer = false;
                 }
@@ -116,7 +116,6 @@ Player.prototype.handleInput = function (key){
         if (this.y <= 0)     // If player has hit water
             this.reset();
     }
-
 
 };
 
@@ -170,11 +169,8 @@ document.addEventListener('keyup', function(e) {
         };
     }
 
-    if (allowedKeys[e.keyCode] != 'pause')
-        player.handleInput(allowedKeys[e.keyCode]);
-    else{
-        paused = !paused;
-    }
+    return allowedKeys[e.keyCode] == 'pause' ? paused = !paused : player.handleInput(allowedKeys[e.keyCode]);
+
 });
 
 /* Returns a random integer between min (included) and max (included)
