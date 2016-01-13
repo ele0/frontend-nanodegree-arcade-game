@@ -47,8 +47,7 @@ var Player = function() {
  * Parameter: dt, a time delta between ticks
  */
 Player.prototype.update = function(dt) {
-      if (this.y <= 0)     // If player has hit water
-        this.reset();
+      //no changes currently needed on update
 };
 
 // Draw the player on the screen
@@ -76,8 +75,10 @@ Player.prototype.handleInput = function (direction){
                 this.y += 83;
             break;
         default:
-            this.reset();
+            this.reset(); // pressing any other key resets the player
     }
+    if (this.y <= 0)     // If player has hit water
+        this.reset();
 
 };
 
