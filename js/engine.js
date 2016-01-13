@@ -91,9 +91,11 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
-            enemy.update(dt);
-        });
+        if (!selectingPlayer && !paused){
+            allEnemies.forEach(function(enemy) {
+                enemy.update(dt);
+            });
+        }
         player.update();
     }
 
@@ -152,6 +154,9 @@ var Engine = (function(global) {
         });
 
         player.render();
+
+        if (paused)
+            drawPause();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -159,7 +164,27 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        selectingPlayer = true;
+        paused = false;
+    }
+
+    // This function draws a paused logo
+    function drawPause(){
+        var centerX = ctx.canvas.width/2;
+        var centerY = ctx.canvas.height/2;
+        var gradient = ctx.createRadialGradient(centerX,centerY,50,centerX,centerY,100);
+        gradient.addColorStop(0, 'white');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(centerX - 200,centerY-100,centerX + 200,centerY+100);
+
+        ctx.font = 'bold 76px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.fillText('II',centerX, centerY);
+
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -171,7 +196,11 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
     ]);
     Resources.onReady(init);
 

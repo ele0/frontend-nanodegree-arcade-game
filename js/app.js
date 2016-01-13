@@ -19,7 +19,7 @@ Enemy.prototype.update = function(dt) {
 
     this.x += this.speed * dt;
 
-    if (player.collidesWith(this))
+    if (player.hasCollided(this))
         player.reset();
 };
 
@@ -31,8 +31,15 @@ Enemy.prototype.render = function() {
 
 // Player that user controls
 var Player = function() {
-    this.sprite = 'images/char-boy.png';
-    // TODO: Add ability for user to select type of sprite
+    this.sprites = ['images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
+    ];
+
+    this.currentSprite = 1;
+
 
     //Initial locations used by reset
     this.initialX = 2 * 101;
@@ -52,33 +59,64 @@ Player.prototype.update = function(dt) {
 
 // Draw the player on the screen
 Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    if (selectingPlayer){
+        var noticeGradient = ctx.createLinearGradient(0, ctx.canvas.height/2 - 40, 0, this.y+50);
+        noticeGradient.addColorStop(0, 'white');
+        noticeGradient.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = noticeGradient;
+        ctx.fillRect(10, ctx.canvas.height/2 - 40, ctx.canvas.width-20, this.y+50);
+
+        ctx.font = 'bold 26px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.fillText('To pick your player type a number...',ctx.canvas.width/2, ctx.canvas.height/2);
+
+
+        for (var i = 0; i < this.sprites.length; i++) {
+            ctx.drawImage(Resources.get(this.sprites[i]), i*101 ,this.y);
+            ctx.fillText(i+1, i*101 + 50, this.y + CHARACTER_Y_OFFSET);
+        };
+    }else{
+        ctx.drawImage(Resources.get(this.sprites[this.currentSprite]), this.x, this.y);
+    }
 };
 
-// Handle user inputs for controlling the player
-Player.prototype.handleInput = function (direction){
-    switch (direction){
-        case 'left':
-            if (this.x>= 101)    // allow left-move only if player is on 2nd column or greater
-                this.x -= 101;
-            break;
-        case 'up':
-            if (this.y >= 83 - CHARACTER_Y_OFFSET) // allow up-move only if player is on 2nd row or greater
-                this.y -= 83;
-            break;
-        case 'right':
-            if (this.x < 404)     // allow right-move only if player is on less than 5th column
-                this.x += 101;
-            break;
-        case 'down':
-            if (this.y < this.initialY) // allow down-move only if player is on less than 6th row (currently 6th row == initialY)
-                this.y += 83;
-            break;
-        default:
-            this.reset(); // pressing any other key resets the player
+/* Handle user inputs for picking or controlling the player and game
+ * while checking and reacting to boundary conditions of the
+ * game play area
+ */
+Player.prototype.handleInput = function (key){
+    if (!paused){
+        switch (key){
+            case 'left':
+                if (this.x>= 101)    // allow left-move only if player is on 2nd column or greater
+                    this.x -= 101;
+                break;
+            case 'up':
+                if (this.y >= 83 - CHARACTER_Y_OFFSET) // allow up-move only if player is on 2nd row or greater
+                    this.y -= 83;
+                break;
+            case 'right':
+                if (this.x < 404)     // allow right-move only if player is on less than 5th column
+                    this.x += 101;
+                break;
+            case 'down':
+                if (this.y < this.initialY) // allow down-move only if player is on less than 6th row (currently 6th row == initialY)
+                    this.y += 83;
+                break;
+            default:
+                if (undefined != key && selectingPlayer) {
+                    this.currentSprite = key-1; // if selecting player avatar, set the sprite
+                    selectingPlayer = false;
+                }
+
+        }
+        if (this.y <= 0)     // If player has hit water
+            this.reset();
     }
-    if (this.y <= 0)     // If player has hit water
-        this.reset();
+
 
 };
 
@@ -89,13 +127,15 @@ Player.prototype.reset = function (){
 };
 
 // Enemies and other objects can check if they've collided with the player
-Player.prototype.collidesWith = function(obj){
+Player.prototype.hasCollided = function(obj){
     return (obj.y == this.y && (Math.abs(this.x - obj.x) < 101 - PLAYER_EDGE_OFFSET));
 };
 
 
 
 // Instantiate globally available game Objects.
+var selectingPlayer = true;
+var paused = false;
 var numEnemies = 50;
 var allEnemies = [];
 
@@ -107,17 +147,34 @@ var player = new Player();
 
 
 /* This listens for key presses and sends the keys to your
- * Player.handleInput() method. You don't need to modify this.
+ * Player.handleInput() method.
+ * The values sent to the handleInput depends on if user
+ * is selecting a player or actively playing the game
  */
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
-    };
+            32: 'pause',
+            37: 'left',
+            38: 'up',
+            39: 'right',
+            40: 'down'
+        };
 
-    player.handleInput(allowedKeys[e.keyCode]);
+    if (selectingPlayer) {
+        allowedKeys = {
+            49: 1,
+            50: 2,
+            51: 3,
+            52: 4,
+            53: 5
+        };
+    }
+
+    if (allowedKeys[e.keyCode] != 'pause')
+        player.handleInput(allowedKeys[e.keyCode]);
+    else{
+        paused = !paused;
+    }
 });
 
 /* Returns a random integer between min (included) and max (included)
