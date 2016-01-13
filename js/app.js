@@ -83,7 +83,7 @@ Player.prototype.render = function() {
     }
 };
 
-/* Handle user inputs for picking or controlling the player and game
+/* Handle user inputs for picking or controlling the player
  * while checking and reacting to boundary conditions of the
  * game play area
  */
@@ -145,7 +145,7 @@ for (i=0;i<numEnemies;i++){
 var player = new Player();
 
 
-/* This listens for key presses and sends the keys to your
+/* This listens for key presses and sends the keys to
  * Player.handleInput() method.
  * The values sent to the handleInput depends on if user
  * is selecting a player or actively playing the game
@@ -169,6 +169,7 @@ document.addEventListener('keyup', function(e) {
         };
     }
 
+    //pass input to player if not pause key
     return allowedKeys[e.keyCode] == 'pause' ? paused = !paused : player.handleInput(allowedKeys[e.keyCode]);
 
 });
