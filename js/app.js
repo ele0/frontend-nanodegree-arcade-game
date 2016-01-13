@@ -1,26 +1,26 @@
-CHARACTER_Y_OFFSET = 25; // to help with positioning of players and enemies within the corresponding square when rendering
+CHARACTER_Y_OFFSET = 25; // offest used to position characters within the corresponding square when rendering
+PLAYER_EDGE_OFFSET = 17; // the actual edge of the character from the edge of the square
 
 // Enemies our player must avoid
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
 
-    // Setting the Enemy initial location
+    // Randomly set the Enemy initial location and speed
     this.x = getRandomIntInclusive(1,100) * -101;
     this.y = (getRandomIntInclusive(1,3) * 83) - CHARACTER_Y_OFFSET;
 
-    // Setting the Enemy speed.
-    // TODO: tweak actual edge values after testing.
     this.speed = getRandomIntInclusive(15,500);
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+/* Update the Enemy location and check collision with Player
+ *  Parameter: dt, a time delta between ticks
+ */
 Enemy.prototype.update = function(dt) {
 
-    //Updates the Enemy location
     this.x += this.speed * dt;
 
-    // TODO: Handles collision with the Player
+    if (player.collidesWith(this))
+        player.reset();
 };
 
 // Draw the enemy on the screen
@@ -34,6 +34,7 @@ var Player = function() {
     this.sprite = 'images/char-boy.png';
     // TODO: Add ability for user to select type of sprite
 
+    //Initial locations used by reset
     this.initialX = 2 * 101;
     this.initialY = (5 * 83) - CHARACTER_Y_OFFSET;
 
@@ -42,11 +43,12 @@ var Player = function() {
 
 };
 
-
-// Parameter: dt, a time delta between ticks
+/* Update Player depending on certain events
+ * Parameter: dt, a time delta between ticks
+ */
 Player.prototype.update = function(dt) {
-
-    // TODO: Handles collision with the Enemy
+      if (this.y <= 0)     // If player has hit water
+        this.reset();
 };
 
 // Draw the player on the screen
@@ -75,11 +77,8 @@ Player.prototype.handleInput = function (direction){
             break;
         default:
             this.reset();
-
     }
 
-    if (this.y <= 0)     // If player has hit water reset to initial location
-        this.reset();
 };
 
 //Resets player to initial location
@@ -88,9 +87,14 @@ Player.prototype.reset = function (){
     this.y = this.initialY;
 };
 
+// Enemies and other objects can check if they've collided with the player
+Player.prototype.collidesWith = function(obj){
+    return (obj.y == this.y && (Math.abs(this.x - obj.x) < 101 - PLAYER_EDGE_OFFSET));
+};
 
-// Now instantiate game Objects.
 
+
+// Instantiate globally available game Objects.
 var numEnemies = 50;
 var allEnemies = [];
 
@@ -101,8 +105,9 @@ for (i=0;i<numEnemies;i++){
 var player = new Player();
 
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+/* This listens for key presses and sends the keys to your
+ * Player.handleInput() method. You don't need to modify this.
+ */
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
@@ -114,9 +119,10 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
-// Returns a random integer between min (included) and max (included)
-// Using Math.round() will give you a non-uniform distribution!
-// From MDN example
+/* Returns a random integer between min (included) and max (included)
+ * Using Math.round() will give you a non-uniform distribution!
+ * From MDN example
+ */
 function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
