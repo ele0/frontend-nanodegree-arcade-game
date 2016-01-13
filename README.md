@@ -1,8 +1,15 @@
-frontend-nanodegree-arcade-game
+#Frogger: frontend-nanodegree-arcade-game
 ===============================
 
-Students should use this [rubric](https://www.udacity.com/course/viewer/#!/c-nd001/l-2696458597/m-2687128535) for self-checking their submission.
+An implementation of the Frogger game for the Udacity Nanodegree. In this version, the player needs to reach the water without colliding with any bugs.
 
-For detailed instructions on how to get started, check out this [guide](https://docs.google.com/document/d/1v01aScPjSWCCWQLIpFqvg3-vXLH2e8_SZQKC8jNO0Dc/pub?embedded=true).
+## Install
+* Clone this repo or download and unpack the zip file
 
-//TODO add instructions!
+## Playing the game
+The goal is to get your player across the paved road to the water on the other side without touching any bugs. The player can move left, right, up or down. The bugs move with varying speeds across on the road.
+
+If the player collides with a bug, the game is reset and the player restarts.
+
+- To launch the game, load index.html in your browser
+- Use the directional keys to move your player and avoid the bugs
