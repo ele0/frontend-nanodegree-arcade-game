@@ -79,8 +79,15 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
-        updateEntities(dt);
-        // checkCollisions();
+        if (gameOver && !paused) {
+            reset();
+        }
+
+        if (!selectingPlayer && !paused){
+            updateEntities(dt);
+            checkCollisions();
+        }
+
     }
 
     /* This is called by the update function and loops through all of the
@@ -91,12 +98,22 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        if (!selectingPlayer && !paused){
-            allEnemies.forEach(function(enemy) {
-                enemy.update(dt);
-            });
-        }
+        allEnemies.forEach(function(enemy) {
+            enemy.update(dt);
+        });
+
         player.update();
+    }
+
+    /* This is called by the update function and loops through all of the
+     * objects within the allEnemies array as defined in app.js and checks if
+     * they collided with the player. The Player will handle the result of the
+     * collisions
+     */
+    function checkCollisions() {
+        allEnemies.forEach(function(enemy) {
+                player.checkCollision(enemy);
+            });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -156,7 +173,8 @@ var Engine = (function(global) {
         player.render();
 
         if (paused)
-            drawPause();
+            return gameOver ? announceText('Game Over! Press "Spacebar" to play again','bold 20px sans-serif') : announceText('II');
+
     }
 
     /* This function does nothing but it could have been a good place to
@@ -164,26 +182,41 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
+        player.reset();
+        allEnemies.forEach(function(enemy) {
+            enemy.reset();
+        });
+
         selectingPlayer = true;
         paused = false;
+
+        //This should be last item that is reset as various things check on this variable
+        gameOver = false;
     }
 
-    // This function draws a paused logo
-    function drawPause(){
-        var centerX = ctx.canvas.width/2;
-        var centerY = ctx.canvas.height/2;
-        var gradient = ctx.createRadialGradient(centerX,centerY,50,centerX,centerY,100);
+    /* This function draws some text centered on a given position (x,y).
+     * by default text is centered on the canvas
+     *
+     */
+    function announceText(text,font, x, y){
+        var centerX = x || ctx.canvas.width/2;
+        var centerY = y || ctx.canvas.height/2;
+        var yExtent = text.length*7+150;
+        var xExtent = text.length*7+300;
+        var gradient = ctx.createRadialGradient(centerX,centerY,100,centerX,centerY,yExtent);
         gradient.addColorStop(0, 'white');
         gradient.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = gradient;
-        ctx.fillRect(centerX - 200,centerY-100,centerX + 200,centerY+100);
+        ctx.fillRect(centerX - xExtent,centerY-yExtent,centerX + xExtent,centerY+yExtent);
 
-        ctx.font = 'bold 76px sans-serif';
+        ctx.save();
+        ctx.font = font || 'bold 76px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = "middle";
         ctx.fillStyle = 'black';
         ctx.lineWidth = 2;
-        ctx.fillText('II',centerX, centerY);
+        ctx.fillText(text,centerX, centerY);
+        ctx.restore();
 
     }
 

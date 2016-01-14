@@ -5,28 +5,36 @@ PLAYER_EDGE_OFFSET = 17; // the actual edge of the character from the edge of th
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
 
+    this.reset();
     // Randomly set the Enemy initial location and speed
-    this.x = getRandomIntInclusive(1,100) * -101;
+    /*this.x = getRandomIntInclusive(1,100) * -101;
     this.y = (getRandomIntInclusive(1,3) * 83) - CHARACTER_Y_OFFSET;
 
     this.speed = getRandomIntInclusive(15,500);
+    */
 };
 
-/* Update the Enemy location and check collision with Player
+/* Update the Enemy location
  *  Parameter: dt, a time delta between ticks
  */
 Enemy.prototype.update = function(dt) {
 
     this.x += this.speed * dt;
-
-    if (player.hasCollided(this))
-        player.reset();
 };
 
 // Draw the enemy on the screen
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
+
+// Reset enemy to a new random starting location
+Enemy.prototype.reset = function() {
+    // Randomly set the Enemy initial location and speed
+    this.x = getRandomIntInclusive(1,100) * -101;
+    this.y = (getRandomIntInclusive(1,3) * 83) - CHARACTER_Y_OFFSET;
+
+    this.speed = getRandomIntInclusive(15,500);
+}
 
 
 // Player that user controls
@@ -37,9 +45,10 @@ var Player = function() {
         'images/char-pink-girl.png',
         'images/char-princess-girl.png'
     ];
-
     this.currentSprite = 1;
 
+    this.livesLeft = 3;
+    this.score = 0;
 
     //Initial locations used by reset
     this.initialX = 2 * 101;
@@ -50,15 +59,22 @@ var Player = function() {
 
 };
 
-/* Update Player depending on certain events
+/* Update Player and respond to state of player depending
+ * on certain events e.g. if no more lives left.
  * Parameter: dt, a time delta between ticks
  */
 Player.prototype.update = function(dt) {
-      //no changes currently needed on update
+    if (this.livesLeft <= 0){
+        gameOver = true;
+        paused = true;
+    }
 };
 
 // Draw the player on the screen
 Player.prototype.render = function() {
+
+    ctx.font = '26px sans-serif';
+
     if (selectingPlayer){
         var noticeGradient = ctx.createLinearGradient(0, ctx.canvas.height/2 - 40, 0, this.y+50);
         noticeGradient.addColorStop(0, 'white');
@@ -66,7 +82,7 @@ Player.prototype.render = function() {
         ctx.fillStyle = noticeGradient;
         ctx.fillRect(10, ctx.canvas.height/2 - 40, ctx.canvas.width-20, this.y+50);
 
-        ctx.font = 'bold 26px sans-serif';
+
         ctx.textAlign = 'center';
         ctx.textBaseline = "bottom";
         ctx.fillStyle = 'black';
@@ -79,6 +95,21 @@ Player.prototype.render = function() {
             ctx.fillText(i+1, i*101 + 50, this.y + CHARACTER_Y_OFFSET);
         }
     }else{
+        // clear top bar and previous drawn state of indicators
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, ctx.canvas.width, 50);
+
+        // draw indicator for number of lives and score
+        ctx.textAlign = 'left';
+        ctx.textBaseline = "top";
+        ctx.fillStyle = 'red';
+        ctx.fillText(String.fromCharCode(0x2665),5,20);
+        ctx.fillStyle = 'black';
+        ctx.fillText(('x' + this.livesLeft),32,20);
+        //draw current score
+        ctx.textAlign = 'right';
+        ctx.fillText(this.score,ctx.canvas.width-10,20);
+
         ctx.drawImage(Resources.get(this.sprites[this.currentSprite]), this.x, this.y);
     }
 };
@@ -113,37 +144,52 @@ Player.prototype.handleInput = function (key){
                 }
 
         }
-        if (this.y <= 0)     // If player has hit water
+        if (this.y <= 0){    // If player has hit water
+            this.score++;
             this.reset();
+        }
     }
 
 };
 
-//Resets player to initial location
+//Resets player to initial location and if gameOver, all it's state
 Player.prototype.reset = function (){
     this.x = this.initialX;
     this.y = this.initialY;
+
+    if (gameOver){
+        this.livesLeft = 3;
+        this.score = 0;
+    }
 };
 
-// Enemies and other objects can check if they've collided with the player
+// Player can check if it has collided with any objects
 Player.prototype.hasCollided = function(obj){
     return (obj.y == this.y && (Math.abs(this.x - obj.x) < 101 - PLAYER_EDGE_OFFSET));
 };
 
+// Player checks for and handles different types of collisions with itself.
+Player.prototype.checkCollision = function (obj){
+    if (this.hasCollided(obj) && obj instanceof Enemy){
+        this.livesLeft--;
+        this.reset();
+    }
+};
 
 
 // Instantiate globally available game Objects.
 var selectingPlayer = true;
 var paused = false;
+var gameOver = false;
+
 var numEnemies = 50;
 var allEnemies = [];
 
 for (i=0;i<numEnemies;i++){
-    allEnemies[i] = new Enemy();
+        allEnemies[i] = new Enemy();
 }
 
 var player = new Player();
-
 
 /* This listens for key presses and sends the keys to
  * Player.handleInput() method.
