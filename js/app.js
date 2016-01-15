@@ -115,7 +115,7 @@ Player.prototype.render = function() {
  * game play area
  */
 Player.prototype.handleInput = function(key) {
-    if (!paused && key != undefined) {
+    if (!paused && key !== undefined) {
         switch (key) {
             case 'left':
                 if (this.x >= 101) // allow left-move only if player is on 2nd column or greater
@@ -186,7 +186,7 @@ var selectingPlayer = true,
 
 for (i = 0; i < numEnemies; i++) {
     allEnemies[i] = new Enemy();
-};
+}
 
 var player = new Player();
 
