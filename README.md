@@ -21,3 +21,5 @@ Each round of the game starts with 3 lives. If the player collides with a bug, t
 * Pause or resume the game from a paused state by pressing **"Spacebar"**
 * Restart another game by pressing **Spacebar**
 
+### Play Now
+To play the game right now click [here](http://ele0.github.io/frontend-nanodegree-arcade-game/)
