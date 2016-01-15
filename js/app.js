@@ -182,9 +182,9 @@ Player.prototype.checkCollision = function(obj) {
 
 // Instantiate globally available game Objects.
 app.selectingPlayer = true;
-app.paused = false,
-app.gameOver = false,
-app.numEnemies = 50,
+app.paused = false;
+app.gameOver = false;
+app.numEnemies = 50;
 app.allEnemies = [];
 
 for (i = 0; i < app.numEnemies; i++) {
