@@ -83,7 +83,7 @@ var Engine = (function(global) {
             reset();
         }
 
-        if (!selectingPlayer && !paused){
+        if (!selectingPlayer && !paused) {
             updateEntities(dt);
             checkCollisions();
         }
@@ -112,8 +112,8 @@ var Engine = (function(global) {
      */
     function checkCollisions() {
         allEnemies.forEach(function(enemy) {
-                player.checkCollision(enemy);
-            });
+            player.checkCollision(enemy);
+        });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -127,12 +127,12 @@ var Engine = (function(global) {
          * for that particular row of the game level.
          */
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/water-block.png', // Top row is water
+                'images/stone-block.png', // Row 1 of 3 of stone
+                'images/stone-block.png', // Row 2 of 3 of stone
+                'images/stone-block.png', // Row 3 of 3 of stone
+                'images/grass-block.png', // Row 1 of 2 of grass
+                'images/grass-block.png' // Row 2 of 2 of grass
             ],
             numRows = 6,
             numCols = 5,
@@ -173,7 +173,7 @@ var Engine = (function(global) {
         player.render();
 
         if (paused)
-            return gameOver ? announceText('Game Over! Press "Spacebar" to play again','bold 20px sans-serif') : announceText('II');
+            return gameOver ? announceText('Game Over! Press "Spacebar" to play again', 'bold 20px sans-serif') : announceText('II');
 
     }
 
@@ -198,16 +198,16 @@ var Engine = (function(global) {
      * by default text is centered on the canvas
      *
      */
-    function announceText(text,font, x, y){
-        var centerX = x || ctx.canvas.width/2;
-        var centerY = y || ctx.canvas.height/2;
-        var yExtent = text.length*7+150;
-        var xExtent = text.length*7+300;
-        var gradient = ctx.createRadialGradient(centerX,centerY,100,centerX,centerY,yExtent);
+    function announceText(text, font, x, y) {
+        var centerX = x || ctx.canvas.width / 2;
+        var centerY = y || ctx.canvas.height / 2;
+        var yExtent = text.length * 7 + 150;
+        var xExtent = text.length * 7 + 300;
+        var gradient = ctx.createRadialGradient(centerX, centerY, 100, centerX, centerY, yExtent);
         gradient.addColorStop(0, 'white');
         gradient.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = gradient;
-        ctx.fillRect(centerX - xExtent,centerY-yExtent,centerX + xExtent,centerY+yExtent);
+        ctx.fillRect(centerX - xExtent, centerY - yExtent, centerX + xExtent, centerY + yExtent);
 
         ctx.save();
         ctx.font = font || 'bold 76px sans-serif';
@@ -215,7 +215,7 @@ var Engine = (function(global) {
         ctx.textBaseline = "middle";
         ctx.fillStyle = 'black';
         ctx.lineWidth = 2;
-        ctx.fillText(text,centerX, centerY);
+        ctx.fillText(text, centerX, centerY);
         ctx.restore();
 
     }

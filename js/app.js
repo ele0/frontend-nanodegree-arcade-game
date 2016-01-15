@@ -1,3 +1,4 @@
+// Constants to use when rendering objects
 CHARACTER_Y_OFFSET = 25; // offest used to position characters within the corresponding square when rendering
 PLAYER_EDGE_OFFSET = 17; // the actual edge of the character from the edge of the square
 
@@ -5,20 +6,14 @@ PLAYER_EDGE_OFFSET = 17; // the actual edge of the character from the edge of th
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
 
+    //setup initial state
     this.reset();
-    // Randomly set the Enemy initial location and speed
-    /*this.x = getRandomIntInclusive(1,100) * -101;
-    this.y = (getRandomIntInclusive(1,3) * 83) - CHARACTER_Y_OFFSET;
-
-    this.speed = getRandomIntInclusive(15,500);
-    */
 };
 
-/* Update the Enemy location
- *  Parameter: dt, a time delta between ticks
+/* Update the Enemy state e.g. location
+ * Parameter: dt, a time delta between ticks
  */
 Enemy.prototype.update = function(dt) {
-
     this.x += this.speed * dt;
 };
 
@@ -27,14 +22,14 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Reset enemy to a new random starting location
+// Set enemy to state as if it was just created
 Enemy.prototype.reset = function() {
-    // Randomly set the Enemy initial location and speed
-    this.x = getRandomIntInclusive(1,100) * -101;
-    this.y = (getRandomIntInclusive(1,3) * 83) - CHARACTER_Y_OFFSET;
+    // set location and speed to random values within acceptable thresholds
+    this.x = getRandomIntInclusive(1, 100) * -101;
+    this.y = (getRandomIntInclusive(1, 3) * 83) - CHARACTER_Y_OFFSET;
 
-    this.speed = getRandomIntInclusive(15,500);
-}
+    this.speed = getRandomIntInclusive(15, 500);
+};
 
 
 // Player that user controls
@@ -59,56 +54,57 @@ var Player = function() {
 
 };
 
-/* Update Player and respond to state of player depending
- * on certain events e.g. if no more lives left.
- * Parameter: dt, a time delta between ticks
+/* Update Player and respond to state of player depending on certain
+ * events e.g. if no more lives left. Parameter: dt, a time delta between ticks
  */
 Player.prototype.update = function(dt) {
-    if (this.livesLeft <= 0){
+    if (this.livesLeft <= 0) {
         gameOver = true;
         paused = true;
     }
 };
 
-// Draw the player on the screen
+// Draw the player and related artifacts on the screen
 Player.prototype.render = function() {
 
     ctx.font = '26px sans-serif';
+    // clear top bar and previous drawn state of indicators
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, ctx.canvas.width, 50);
 
-    if (selectingPlayer){
-        var noticeGradient = ctx.createLinearGradient(0, ctx.canvas.height/2 - 40, 0, this.y+50);
+
+    if (selectingPlayer) {
+        // Create a lighter background to write instructions on for better contrast
+        var noticeGradient = ctx.createLinearGradient(0, ctx.canvas.height / 2 - 40, 0, this.y + 50);
         noticeGradient.addColorStop(0, 'white');
         noticeGradient.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = noticeGradient;
-        ctx.fillRect(10, ctx.canvas.height/2 - 40, ctx.canvas.width-20, this.y+50);
+        ctx.fillRect(10, ctx.canvas.height / 2 - 40, ctx.canvas.width - 20, this.y + 50);
 
-
+        //setup and write instructions
         ctx.textAlign = 'center';
         ctx.textBaseline = "bottom";
         ctx.fillStyle = 'black';
         ctx.lineWidth = 2;
-        ctx.fillText('To pick your player type a number...',ctx.canvas.width/2, ctx.canvas.height/2);
+        ctx.fillText('To pick your player type a number...', ctx.canvas.width / 2, ctx.canvas.height / 2);
 
-
+        //Draw sprites in a row for user to choose from
         for (var i = 0; i < this.sprites.length; i++) {
-            ctx.drawImage(Resources.get(this.sprites[i]), i*101 ,this.y);
-            ctx.fillText(i+1, i*101 + 50, this.y + CHARACTER_Y_OFFSET);
+            ctx.drawImage(Resources.get(this.sprites[i]), i * 101, this.y);
+            ctx.fillText(i + 1, i * 101 + 50, this.y + CHARACTER_Y_OFFSET);
         }
-    }else{
-        // clear top bar and previous drawn state of indicators
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, ctx.canvas.width, 50);
+    } else {
 
         // draw indicator for number of lives and score
         ctx.textAlign = 'left';
         ctx.textBaseline = "top";
         ctx.fillStyle = 'red';
-        ctx.fillText(String.fromCharCode(0x2665),5,20);
+        ctx.fillText(String.fromCharCode(0x2665), 5, 20);
         ctx.fillStyle = 'black';
-        ctx.fillText(('x' + this.livesLeft),32,20);
-        //draw current score
+        ctx.fillText(('x' + this.livesLeft), 32, 20);
+        //draw current score indicator
         ctx.textAlign = 'right';
-        ctx.fillText(this.score,ctx.canvas.width-10,20);
+        ctx.fillText(this.score, ctx.canvas.width - 10, 20);
 
         ctx.drawImage(Resources.get(this.sprites[this.currentSprite]), this.x, this.y);
     }
@@ -118,11 +114,11 @@ Player.prototype.render = function() {
  * while checking and reacting to boundary conditions of the
  * game play area
  */
-Player.prototype.handleInput = function (key){
-    if (!paused && key != undefined){
-        switch (key){
+Player.prototype.handleInput = function(key) {
+    if (!paused && key != undefined) {
+        switch (key) {
             case 'left':
-                if (this.x>= 101)    // allow left-move only if player is on 2nd column or greater
+                if (this.x >= 101) // allow left-move only if player is on 2nd column or greater
                     this.x -= 101;
                 break;
             case 'up':
@@ -130,7 +126,7 @@ Player.prototype.handleInput = function (key){
                     this.y -= 83;
                 break;
             case 'right':
-                if (this.x < 404)     // allow right-move only if player is on less than 5th column
+                if (this.x < 404) // allow right-move only if player is on less than 5th column
                     this.x += 101;
                 break;
             case 'down':
@@ -139,12 +135,12 @@ Player.prototype.handleInput = function (key){
                 break;
             default:
                 if (selectingPlayer) {
-                    this.currentSprite = key-1; // if selecting player avatar, set the sprite
+                    this.currentSprite = key - 1; // if selecting player avatar, set the sprite
                     selectingPlayer = false;
                 }
 
         }
-        if (this.y <= 0){    // If player has hit water
+        if (this.y <= 0) { // If player has hit water
             this.score++;
             this.reset();
         }
@@ -153,24 +149,28 @@ Player.prototype.handleInput = function (key){
 };
 
 //Resets player to initial location and if gameOver, all it's state
-Player.prototype.reset = function (){
+Player.prototype.reset = function() {
     this.x = this.initialX;
     this.y = this.initialY;
 
-    if (gameOver){
+    if (gameOver) {
         this.livesLeft = 3;
         this.score = 0;
     }
 };
 
-// Player can check if it has collided with any objects
-Player.prototype.hasCollided = function(obj){
+/* Player can check if it has collided with any objects which is currently
+ * defined as if at the same height and overlapping each other in anyway
+ * horizontally
+ */
+Player.prototype.hasCollided = function(obj) {
     return (obj.y == this.y && (Math.abs(this.x - obj.x) < 101 - PLAYER_EDGE_OFFSET));
 };
 
-// Player checks for and handles different types of collisions with itself.
-Player.prototype.checkCollision = function (obj){
-    if (this.hasCollided(obj) && obj instanceof Enemy){
+// Player checks for and handles different types of collisions
+// when given an object
+Player.prototype.checkCollision = function(obj) {
+    if (this.hasCollided(obj) && obj instanceof Enemy) {
         this.livesLeft--;
         this.reset();
     }
@@ -178,32 +178,30 @@ Player.prototype.checkCollision = function (obj){
 
 
 // Instantiate globally available game Objects.
-var selectingPlayer = true;
-var paused = false;
-var gameOver = false;
+var selectingPlayer = true,
+    paused = false,
+    gameOver = false,
+    numEnemies = 50,
+    allEnemies = [];
 
-var numEnemies = 50;
-var allEnemies = [];
-
-for (i=0;i<numEnemies;i++){
-        allEnemies[i] = new Enemy();
-}
+for (i = 0; i < numEnemies; i++) {
+    allEnemies[i] = new Enemy();
+};
 
 var player = new Player();
 
-/* This listens for key presses and sends the keys to
- * Player.handleInput() method.
- * The values sent to the handleInput depends on if user
- * is selecting a player or actively playing the game
+/* This listens for key presses and sends the keys to Player.handleInput() method.
+ * The values sent to the handleInput depends on if user is selecting a player or
+ * actively playing the game
  */
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
-            32: 'pause',
-            37: 'left',
-            38: 'up',
-            39: 'right',
-            40: 'down'
-        };
+        32: 'pause',
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down'
+    };
 
     if (selectingPlayer) {
         allowedKeys = {
@@ -225,5 +223,5 @@ document.addEventListener('keyup', function(e) {
  * From MDN example
  */
 function getRandomIntInclusive(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
