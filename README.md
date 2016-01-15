@@ -14,7 +14,7 @@ Each successful attempt to reach the water increases your score by 1.
 
 Each round of the game starts with 3 lives. If the player collides with a bug, the game is reset and the player restarts from the initial position and 1 life is taken away. Once your player loses 3 lives, the game is over.
 
-### Summary of launch & controls
+### Summary of controls
 * **Launch** the game by loading index.html in your browser (double click the file)
 * On your keyboard, press a number between **1** & **5** to select the character you wish to use
 * Use the directional keys to move your player
