@@ -1,6 +1,9 @@
+// global variable to hold all global properties within this file
+var app = app || {};
+
 // Constants to use when rendering objects
-CHARACTER_Y_OFFSET = 25; // offest used to position characters within the corresponding square when rendering
-PLAYER_EDGE_OFFSET = 17; // the actual edge of the character from the edge of the square
+app.CHARACTER_Y_OFFSET = 25; // offest used to position characters within the corresponding square when rendering
+app.PLAYER_EDGE_OFFSET = 17; // the actual edge of the character from the edge of the square
 
 // Enemies our player must avoid
 var Enemy = function() {
@@ -26,7 +29,7 @@ Enemy.prototype.render = function() {
 Enemy.prototype.reset = function() {
     // set location and speed to random values within acceptable thresholds
     this.x = getRandomIntInclusive(1, 100) * -101;
-    this.y = (getRandomIntInclusive(1, 3) * 83) - CHARACTER_Y_OFFSET;
+    this.y = (getRandomIntInclusive(1, 3) * 83) - app.CHARACTER_Y_OFFSET;
 
     this.speed = getRandomIntInclusive(15, 500);
 };
@@ -47,7 +50,7 @@ var Player = function() {
 
     //Initial locations used by reset
     this.initialX = 2 * 101;
-    this.initialY = (5 * 83) - CHARACTER_Y_OFFSET;
+    this.initialY = (5 * 83) - app.CHARACTER_Y_OFFSET;
 
     this.x = this.initialX;
     this.y = this.initialY;
@@ -59,8 +62,8 @@ var Player = function() {
  */
 Player.prototype.update = function(dt) {
     if (this.livesLeft <= 0) {
-        gameOver = true;
-        paused = true;
+        app.gameOver = true;
+        app.paused = true;
     }
 };
 
@@ -73,7 +76,7 @@ Player.prototype.render = function() {
     ctx.fillRect(0, 0, ctx.canvas.width, 50);
 
 
-    if (selectingPlayer) {
+    if (app.selectingPlayer) {
         // Create a lighter background to write instructions on for better contrast
         var noticeGradient = ctx.createLinearGradient(0, ctx.canvas.height / 2 - 40, 0, this.y + 50);
         noticeGradient.addColorStop(0, 'white');
@@ -89,9 +92,9 @@ Player.prototype.render = function() {
         ctx.fillText('To pick your player type a number...', ctx.canvas.width / 2, ctx.canvas.height / 2);
 
         //Draw sprites in a row for user to choose from
-        for (var i = 0; i < this.sprites.length; i++) {
+        for (var i = 0, len = this.sprites.length; i < len; i++) {
             ctx.drawImage(Resources.get(this.sprites[i]), i * 101, this.y);
-            ctx.fillText(i + 1, i * 101 + 50, this.y + CHARACTER_Y_OFFSET);
+            ctx.fillText(i + 1, i * 101 + 50, this.y + app.CHARACTER_Y_OFFSET);
         }
     } else {
 
@@ -115,14 +118,14 @@ Player.prototype.render = function() {
  * game play area
  */
 Player.prototype.handleInput = function(key) {
-    if (!paused && key !== undefined) {
+    if (!app.paused && key !== undefined) {
         switch (key) {
             case 'left':
                 if (this.x >= 101) // allow left-move only if player is on 2nd column or greater
                     this.x -= 101;
                 break;
             case 'up':
-                if (this.y >= 83 - CHARACTER_Y_OFFSET) // allow up-move only if player is on 2nd row or greater
+                if (this.y >= 83 - app.CHARACTER_Y_OFFSET) // allow up-move only if player is on 2nd row or greater
                     this.y -= 83;
                 break;
             case 'right':
@@ -134,9 +137,9 @@ Player.prototype.handleInput = function(key) {
                     this.y += 83;
                 break;
             default:
-                if (selectingPlayer) {
+                if (app.selectingPlayer) {
                     this.currentSprite = key - 1; // if selecting player avatar, set the sprite
-                    selectingPlayer = false;
+                    app.selectingPlayer = false;
                 }
 
         }
@@ -153,7 +156,7 @@ Player.prototype.reset = function() {
     this.x = this.initialX;
     this.y = this.initialY;
 
-    if (gameOver) {
+    if (app.gameOver) {
         this.livesLeft = 3;
         this.score = 0;
     }
@@ -164,7 +167,7 @@ Player.prototype.reset = function() {
  * horizontally
  */
 Player.prototype.hasCollided = function(obj) {
-    return (obj.y == this.y && (Math.abs(this.x - obj.x) < 101 - PLAYER_EDGE_OFFSET));
+    return (obj.y == this.y && (Math.abs(this.x - obj.x) < 101 - app.PLAYER_EDGE_OFFSET));
 };
 
 // Player checks for and handles different types of collisions
@@ -178,17 +181,17 @@ Player.prototype.checkCollision = function(obj) {
 
 
 // Instantiate globally available game Objects.
-var selectingPlayer = true,
-    paused = false,
-    gameOver = false,
-    numEnemies = 50,
-    allEnemies = [];
+app.selectingPlayer = true;
+app.paused = false,
+app.gameOver = false,
+app.numEnemies = 50,
+app.allEnemies = [];
 
-for (i = 0; i < numEnemies; i++) {
-    allEnemies[i] = new Enemy();
+for (i = 0; i < app.numEnemies; i++) {
+    app.allEnemies[i] = new Enemy();
 }
 
-var player = new Player();
+app.player = new Player();
 
 /* This listens for key presses and sends the keys to Player.handleInput() method.
  * The values sent to the handleInput depends on if user is selecting a player or
@@ -203,7 +206,7 @@ document.addEventListener('keyup', function(e) {
         40: 'down'
     };
 
-    if (selectingPlayer) {
+    if (app.selectingPlayer) {
         allowedKeys = {
             49: 1,
             50: 2,
@@ -214,7 +217,7 @@ document.addEventListener('keyup', function(e) {
     }
 
     //pass input to player if not pause key
-    return allowedKeys[e.keyCode] == 'pause' ? paused = !paused : player.handleInput(allowedKeys[e.keyCode]);
+    return allowedKeys[e.keyCode] == 'pause' ? app.paused = !app.paused : app.player.handleInput(allowedKeys[e.keyCode]);
 
 });
 

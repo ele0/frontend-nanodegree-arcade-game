@@ -79,11 +79,11 @@ var Engine = (function(global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
-        if (gameOver && !paused) {
+        if (app.gameOver && !app.paused) {
             reset();
         }
 
-        if (!selectingPlayer && !paused) {
+        if (!app.selectingPlayer && !app.paused) {
             updateEntities(dt);
             checkCollisions();
         }
@@ -98,11 +98,11 @@ var Engine = (function(global) {
      * render methods.
      */
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
+        app.allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
 
-        player.update();
+        app.player.update();
     }
 
     /* This is called by the update function and loops through all of the
@@ -111,8 +111,8 @@ var Engine = (function(global) {
      * collisions
      */
     function checkCollisions() {
-        allEnemies.forEach(function(enemy) {
-            player.checkCollision(enemy);
+        app.allEnemies.forEach(function(enemy) {
+            app.player.checkCollision(enemy);
         });
     }
 
@@ -166,14 +166,14 @@ var Engine = (function(global) {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
-        allEnemies.forEach(function(enemy) {
+        app.allEnemies.forEach(function(enemy) {
             enemy.render();
         });
 
-        player.render();
+        app.player.render();
 
-        if (paused)
-            return gameOver ? announceText('Game Over! Press "Spacebar" to play again', 'bold 20px sans-serif') : announceText('II');
+        if (app.paused)
+            return app.gameOver ? announceText('Game Over! Press "Spacebar" to play again', 'bold 20px sans-serif') : announceText('II');
 
     }
 
@@ -182,16 +182,16 @@ var Engine = (function(global) {
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        player.reset();
-        allEnemies.forEach(function(enemy) {
+        app.player.reset();
+        app.allEnemies.forEach(function(enemy) {
             enemy.reset();
         });
 
-        selectingPlayer = true;
-        paused = false;
+        app.selectingPlayer = true;
+        app.paused = false;
 
         //This should be last item that is reset as various things check on this variable
-        gameOver = false;
+        app.gameOver = false;
     }
 
     /* This function draws some text centered on a given position (x,y).
